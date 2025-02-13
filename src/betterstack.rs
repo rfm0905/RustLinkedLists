@@ -1,52 +1,44 @@
-// a list is either empty or has an element followed by another list
-
-use std::mem;
-
 pub struct List { // only keep structure public / accessible
     head: Link,
 }
+type Link = Option<Box<Node>>; // use option generics
+struct Node {
+    elem : i32,
+    next: Link
+}
+
+
 
 impl List {
     pub fn new() -> Self {
-        List {
-            head: Link::Empty
-        }
+        List { head : None }
     }
 
     pub fn push(&mut self, elem: i32) {
         let newnode = Box::new(Node {
             elem,
-            next: mem::replace(&mut self.head, Link::Empty) // replace to avoid borrowing issues
+            next: self.head.take()
         });
 
-        self.head = Link::More(newnode);
+        self.head = Some(newnode);
     }
 
     pub fn pop(&mut self) -> Option<i32> {
-        match mem::replace(&mut self.head, Link::Empty) {
-            Link::Empty => None,
-            Link::More(node) => {
+        match self.head.take() {
+            None => None,
+            Some(node) => {
                 self.head = node.next;
                 Some(node.elem)
             }
         }
     }
 }
-enum Link {
-    Empty,
-    More(Box<Node>) // use box because recursive data structure and need heap allocation
-}
-
-struct Node {
-    elem : i32,
-    next: Link
-}
 
 impl Drop for List {
     fn drop(&mut self) {
-        let mut cur_link = mem::replace(&mut self.head, Link::Empty);
-        while let Link::More(mut boxed_node) = cur_link { // until node is empty
-            cur_link = mem::replace(&mut boxed_node.next, Link::Empty);
+        let mut cur_link = self.head.take();
+        while let Some(mut boxed_node) = cur_link { // until node is empty
+            cur_link = boxed_node.next.take();
         }
     }
 }
