@@ -1,6 +1,15 @@
-// A list is either empty or an element followed by a list
-pub enum List {
+// a list is either empty or has an element followed by another list
+
+pub struct List { // only keep structure public / accessible
+    head: Link,
+}
+enum Link {
     Empty,
-    Elem(i32, Box<List>)  // use box for heap allocation, since list is recursive and can be unknown size
+    More(Box<Node>) // use box because recursive data structure and need heap allocation
+}
+
+struct Node {
+    elem : i32,
+    next: Link
 }
 
