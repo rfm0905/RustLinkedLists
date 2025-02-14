@@ -1,4 +1,4 @@
-use std::sync::{Arc};
+use std::sync::{Arc}; // use reference counting so multiple lists can have the same head
 
 pub struct List<T> {
     head: Link<T>,
@@ -18,14 +18,14 @@ impl <T> List<T> {
         List {
             head: Some(Arc::new(Node {
                 elem,
-                next: self.head.clone(),
+                next: self.head.clone(), // cloning a reference counter doesn't copy data
             }))
         }
     }
 
     pub fn tail(&self) -> List<T> {
         List {
-            head: self.head.as_ref().and_then(|node| node.next.clone()),
+            head: self.head.as_ref().and_then(|node| node.next.clone()), // and then to flatten
         }
     }
 
@@ -56,7 +56,7 @@ impl<T> Drop for List<T> {
     fn drop(&mut self) {
         let mut head = self.head.take();
         while let Some(node) = head {
-            if let Ok(mut node) = Arc::try_unwrap(node) {
+            if let Ok(mut node) = Arc::try_unwrap(node) { // try unwrap checks to see if other lists are using this memory or not
                 head = node.next.take();
             } else { break; }
         }
