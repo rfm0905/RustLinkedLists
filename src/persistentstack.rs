@@ -1,4 +1,4 @@
-use std::sync::{Arc}; // use reference counting so multiple lists can have the same head
+use std::sync::Arc; // use reference counting so multiple lists can have the same head
 
 pub struct List<T> {
     head: Link<T>,
@@ -9,17 +9,17 @@ struct Node<T> {
     next: Link<T>,
 }
 
-impl <T> List<T> {
+impl<T> List<T> {
     pub fn new() -> Self {
         List { head: None }
     }
 
-    pub fn prepend(&self, elem : T) -> List<T> {
+    pub fn prepend(&self, elem: T) -> List<T> {
         List {
             head: Some(Arc::new(Node {
                 elem,
                 next: self.head.clone(), // cloning a reference counter doesn't copy data
-            }))
+            })),
         }
     }
 
@@ -34,7 +34,9 @@ impl <T> List<T> {
     }
 
     pub fn iter(&self) -> Iter<'_, T> {
-        Iter {next: self.head.as_deref()}
+        Iter {
+            next: self.head.as_deref(),
+        }
     }
 }
 
@@ -56,9 +58,12 @@ impl<T> Drop for List<T> {
     fn drop(&mut self) {
         let mut head = self.head.take();
         while let Some(node) = head {
-            if let Ok(mut node) = Arc::try_unwrap(node) { // try unwrap checks to see if other lists are using this memory or not
+            if let Ok(mut node) = Arc::try_unwrap(node) {
+                // try unwrap checks to see if other lists are using this memory or not
                 head = node.next.take();
-            } else { break; }
+            } else {
+                break;
+            }
         }
     }
 }
@@ -86,7 +91,6 @@ mod test {
         // Make sure empty tail works
         let list = list.tail();
         assert_eq!(list.head(), None);
-
     }
 
     #[test]
@@ -98,6 +102,4 @@ mod test {
         assert_eq!(iter.next(), Some(&2));
         assert_eq!(iter.next(), Some(&1));
     }
-
 }
-

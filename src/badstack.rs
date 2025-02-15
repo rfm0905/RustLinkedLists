@@ -2,21 +2,20 @@
 
 use std::mem;
 
-pub struct List { // only keep structure public / accessible
+pub struct List {
+    // only keep structure public / accessible
     head: Link,
 }
 
 impl List {
     pub fn new() -> Self {
-        List {
-            head: Link::Empty
-        }
+        List { head: Link::Empty }
     }
 
     pub fn push(&mut self, elem: i32) {
         let newnode = Box::new(Node {
             elem,
-            next: mem::replace(&mut self.head, Link::Empty) // replace to avoid borrowing issues
+            next: mem::replace(&mut self.head, Link::Empty), // replace to avoid borrowing issues
         });
 
         self.head = Link::More(newnode);
@@ -34,18 +33,19 @@ impl List {
 }
 enum Link {
     Empty,
-    More(Box<Node>) // use box because recursive data structure and need heap allocation
+    More(Box<Node>), // use box because recursive data structure and need heap allocation
 }
 
 struct Node {
-    elem : i32,
-    next: Link
+    elem: i32,
+    next: Link,
 }
 
 impl Drop for List {
     fn drop(&mut self) {
         let mut cur_link = mem::replace(&mut self.head, Link::Empty);
-        while let Link::More(mut boxed_node) = cur_link { // until node is empty
+        while let Link::More(mut boxed_node) = cur_link {
+            // until node is empty
             cur_link = mem::replace(&mut boxed_node.next, Link::Empty);
         }
     }
@@ -84,4 +84,3 @@ mod test {
         assert_eq!(list.pop(), None);
     }
 }
-

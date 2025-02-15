@@ -1,5 +1,6 @@
 pub mod badstack;
 pub mod betterstack;
-mod persistentstack;
+mod doubledeque;
 mod doublylinked;
+mod persistentstack;
 mod unsafequeue;

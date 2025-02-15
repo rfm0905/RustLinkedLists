@@ -1,5 +1,5 @@
-use std::rc::Rc;
-use std::cell::{Ref, RefCell, RefMut}; // use Refcell for interior mutability
+use std::cell::{Ref, RefCell, RefMut};
+use std::rc::Rc; // use Refcell for interior mutability
 
 pub struct List<T> {
     head: Link<T>,
@@ -18,38 +18,41 @@ impl<T> Node<T> {
         Rc::new(RefCell::new(Node {
             elem,
             next: None,
-            prev: None
+            prev: None,
         }))
     }
 }
 
 impl<T> List<T> {
     pub fn new() -> Self {
-        List { head: None, tail: None }
+        List {
+            head: None,
+            tail: None,
+        }
     }
 
     pub fn peek_front(&self) -> Option<Ref<T>> {
         self.head.as_ref().map(|node| {
-            Ref::map(node.borrow(), |node| &node.elem) // using map solves lifetime issues, as its tied to the reference not the acc ref cell 
+            Ref::map(node.borrow(), |node| &node.elem) // using map solves lifetime issues, as its tied to the reference not the acc ref cell
         })
     }
 
     pub fn peek_front_mut(&mut self) -> Option<RefMut<T>> {
-        self.head.as_mut().map(|node| {
-            RefMut::map(node.borrow_mut(), |node| &mut node.elem)
-        })
+        self.head
+            .as_mut()
+            .map(|node| RefMut::map(node.borrow_mut(), |node| &mut node.elem))
     }
 
     pub fn peek_back(&self) -> Option<Ref<T>> {
-        self.tail.as_ref().map(|node| {
-            Ref::map(node.borrow(), |node| &node.elem)
-        })
+        self.tail
+            .as_ref()
+            .map(|node| Ref::map(node.borrow(), |node| &node.elem))
     }
 
     pub fn peek_back_mut(&mut self) -> Option<RefMut<T>> {
-        self.tail.as_mut().map(|node| {
-            RefMut::map(node.borrow_mut(), |node| &mut node.elem)
-        })
+        self.tail
+            .as_mut()
+            .map(|node| RefMut::map(node.borrow_mut(), |node| &mut node.elem))
     }
 
     pub fn push_front(&mut self, elem: T) {
@@ -222,7 +225,3 @@ mod test {
         assert_eq!(iter.next(), None);
     }
 }
-
-
-
-
